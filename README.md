@@ -14,3 +14,10 @@
 2. 안드로이드 이해도
 3. git 능숙도
 4. 오픈 소스 활용도
+
+## github PR 제출 방법
+1. 우측 Fork 버튼을 눌러 자신의 github 공간으로 fork 합니다.
+2. git checkout - 작업공간으로 다운로드
+3. 작업 완료 후, push
+4. Pull Requests 로 이동하여 PR 을 작성합니다.
+5. 생성된 PR 링크를 메일에 첨부합니다.
