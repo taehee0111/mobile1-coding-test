@@ -1,4 +1,4 @@
-# Coding Test Project for RSUPPORT mobile1
+# RSUPPORT mobile1 coding test
 
     알서포트 코딩 테스트 참여에 감사 드립니다.
     본 테스트는 지원자의 개발 및 협업 역량을 예측하기 위하여 진행합니다.
