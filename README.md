@@ -23,4 +23,4 @@
 2. git clone
 3. 작업 완료 후, git push
 4. fork된 github의 Pull Requests 로 이동하여 PR 을 작성합니다.
-5. 생성된 PR 링크를 메일에 첨부합니다.
+5. 생성된 PR 링크를 메일(jhsong@rsupport.com) 에 첨부합니다.
