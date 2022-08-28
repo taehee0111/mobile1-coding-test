@@ -3,6 +3,7 @@ package com.rsupport.mobile1.test.gettyimage.manager;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -49,9 +50,8 @@ public class GetGettyImageManager {
         protected Void doInBackground(Void... voids) {
             try {
                 resultLists = getGettyImage_Page(position);
-//                Log.d(TAG, "");
             } catch (Exception e) {
-//                Log.e(TAG, "e");
+                Log.e(TAG, e.toString());
                 //todo FirebaseCrashlytics 예외처리 추가 필요
             }
             return null;

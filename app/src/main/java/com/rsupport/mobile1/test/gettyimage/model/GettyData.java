@@ -12,7 +12,7 @@ public class GettyData implements Parcelable {
     // 더보기 진행바
     public static final int TYPE_PROGRESS = 2;
     // 더보기 새로고침
-//    public static final int TYPE_REFRESH = 3;
+    public static final int TYPE_REFRESH = 3;
 
     public String url;
     public int dataType;

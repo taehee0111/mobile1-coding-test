@@ -4,5 +4,6 @@
     <string name="network_connected">네트워크 연결 되었습니다.</string>
     <string name="network_discoonected">네트워크 끊겼습니다.</string>
     <string name="refresh">새로고침</string>
-    <string name="getty_no_item">\"상품 정보를 받아오지 못했습니다.\"</string>
+    <string name="getty_no_item">상품 정보를 받아오지 못했습니다.</string>
+    <string name="jellybean_not_able">플레이스토어에서 젤리빈 이하의 버전은 지원하지 않습니다.</string>
 </resources>

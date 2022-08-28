@@ -24,24 +24,8 @@ public class ToastUtils {
         toast.show();
     }
 
-    public static void showToast(Context context, int str) {
-        if (context == null) {
-            return;
-        }
-        Toast toast = Toast.makeText(context, str, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    public static void showToastCenter_long(Context context, int str) {
-        if (context == null) {
-            return;
-        }
-        Toast toast = Toast.makeText(context, str, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-
-    public static void toastS(Context context, int str) {
+    //메시지 덮어서 표시
+    public static void showToastS(Context context, String str) {
         if (context == null) {
             return;
         }

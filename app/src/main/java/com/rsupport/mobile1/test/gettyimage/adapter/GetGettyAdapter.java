@@ -18,13 +18,15 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.rsupport.mobile1.test.R;
 import com.rsupport.mobile1.test.activity.MainActivity;
-import com.rsupport.mobile1.test.gettyimage.holder.GettyViewHolder;
+import com.rsupport.mobile1.test.gettyimage.holder.GettyViewImageHolder;
 import com.rsupport.mobile1.test.gettyimage.holder.GettyViewProgressBarHolder;
+import com.rsupport.mobile1.test.gettyimage.holder.GettyViewRefreshHolder;
 import com.rsupport.mobile1.test.gettyimage.manager.CustomGridLayoutManager;
 import com.rsupport.mobile1.test.gettyimage.manager.GetGettyImageManager;
 import com.rsupport.mobile1.test.gettyimage.model.GettyData;
 import com.rsupport.mobile1.test.utils.SizeUtil;
 import com.rsupport.mobile1.test.utils.ToastUtils;
+import com.rsupport.mobile1.test.utils.manager.NetworkManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +61,8 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             public int getSpanSize(int position) {
                 GettyData loadingPos = resultLists.get(position);
                 //프로그래스바, 새로고침
-                if (loadingPos.dataType == GettyData.TYPE_PROGRESS) {
-//                        loadingPos.dataType == GettyData.TYPE_REFRESH) {
+                if (loadingPos.dataType == GettyData.TYPE_PROGRESS ||
+                        loadingPos.dataType == GettyData.TYPE_REFRESH) {
                     return 3;
                 }
                 //이미지
@@ -74,8 +76,8 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder_) {
         super.onViewDetachedFromWindow(holder_);
-        if (holder_ instanceof GettyViewHolder) {
-            ImageView imageView = ((GettyViewHolder) holder_).iv;
+        if (holder_ instanceof GettyViewImageHolder) {
+            ImageView imageView = ((GettyViewImageHolder) holder_).iv;
             Glide.with(mActivity).clear(imageView);
         }
     }
@@ -86,7 +88,7 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         // 이미지
         if (viewType == GettyData.TYPE_URL) {
             View view = LayoutInflater.from(mActivity).inflate(R.layout.getty_holder_item, parent, false);
-            return new GettyViewHolder(view, viewType);
+            return new GettyViewImageHolder(view, viewType);
 
         }
         // 진행 바
@@ -94,23 +96,20 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             View view = LayoutInflater.from(mActivity).inflate(R.layout.getty_holder_item_progress, parent, false);
             return new GettyViewProgressBarHolder(view, viewType);
         }
-//        //로드 실패시 새로고침
-//        else if (viewType == GettyData.TYPE_REFRESH) {
-//            View view = LayoutInflater.from(mActivity).inflate(R.layout.getty_holder_item_refresh, parent, false);
-//            return new GettyViewRefreshHolder(view, viewType);
-//        }
-        // 예외
-        else {
-            View view = LayoutInflater.from(mActivity).inflate(R.layout.getty_holder_item, parent, false);
-            return new GettyViewHolder(view, viewType);
+        //로드 실패시 새로고침
+        else if (viewType == GettyData.TYPE_REFRESH) {
+            View view = LayoutInflater.from(mActivity).inflate(R.layout.getty_holder_item_refresh, parent, false);
+            return new GettyViewRefreshHolder(view, viewType);
         }
+        // 예외
+        return null;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
         super.onBindViewHolder(holder, position, payloads);
         for (int i = 0; i < payloads.size(); i++) {
-            if (PAYLOAD_IMAGE.equals(payloads.get(i))) {
+            if (PAYLOAD_IMAGE.equals(payloads.get(i)) && holder instanceof GettyViewImageHolder) {
                 payloadImage(holder, position);
                 return;
             }
@@ -127,20 +126,25 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (item.dataType == GettyData.TYPE_URL) {
             payloadImage(holder_, position);
         }
-//        // 새로고침
-//        else if (item.dataType == GettyData.TYPE_REFRESH) {
-//            GettyViewRefreshHolder holder = (GettyViewRefreshHolder) holder_;
-//            int itemH = screenW / 3;
-//            holder.parent.getLayoutParams().width = screenW;
-//            holder.parent.getLayoutParams().height = itemH;
-//            holder.parent.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    loadPage(null); // 새로고침
-//                }
-//            });
-//        }
-        // 진행바 => 보일경우 데이터 로딩
+        // 새로고침
+        else if (item.dataType == GettyData.TYPE_REFRESH) {
+            GettyViewRefreshHolder holder = (GettyViewRefreshHolder) holder_;
+            int itemH = screenW / 3;
+            holder.parent.getLayoutParams().width = screenW;
+            holder.parent.getLayoutParams().height = itemH;
+            holder.pb.setVisibility(View.GONE);
+            holder.parent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mActivity.isFinishing()) return;
+                    //네트워크 연결 X
+                    NetworkManager.getNetworkStatus(mActivity);
+
+                    loadPage(holder, null); // 새로고침
+                }
+            });
+        }
+        // 진행 바 => 보일 경우 데이터 로딩
         else if (item.dataType == GettyData.TYPE_PROGRESS) {
             GettyViewProgressBarHolder holder = (GettyViewProgressBarHolder) holder_;
             int itemH = screenW / 3;
@@ -152,7 +156,7 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private void payloadImage(RecyclerView.ViewHolder holder_, int position) {
-        GettyViewHolder holder = (GettyViewHolder) holder_;
+        GettyViewImageHolder holder = (GettyViewImageHolder) holder_;
         Glide.with(mActivity).clear(holder.iv);
         GettyData item = resultLists.get(position);
         int itemW = screenW / 3;
@@ -192,10 +196,9 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                 });
 
-        //Preload
+        //Preload 마지막 개수 6개 아이템이 보일 때 미리 로딩해서 성능 향상 시키기 (Glide cache)
         if (position == resultLists.size() - 6) {
-            int endPosition = Math.min(position, resultLists.size());
-            List<GettyData> list = resultLists.subList(position, endPosition);
+            List<GettyData> list = resultLists.subList(position, resultLists.size());
             for (GettyData gettyData : list) {
                 Glide.with(mActivity).load(gettyData.url).preload(itemW, itemW);
             }
@@ -231,10 +234,16 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
 
-    public void loadPage(@Nullable GettyViewProgressBarHolder holder, @Nullable EndLoad endLoad) {
+    public void loadPage(@Nullable RecyclerView.ViewHolder holder_, @Nullable EndLoad endLoad) {
         if (isLoading) {
             return;
         }
+        //새로고침 이미지 -> 로딩중으로 UI 변경
+        if (holder_ instanceof GettyViewRefreshHolder) {
+            ((GettyViewRefreshHolder) holder_).tv_refresh.setVisibility(View.GONE);
+            ((GettyViewRefreshHolder) holder_).pb.setVisibility(View.VISIBLE);
+        }
+
         Log.d(TAG, "pageIndex:" + pageIndex);
         isLoading = true;
         pageIndex++;
@@ -245,8 +254,9 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 GettyData pbItem;
                 //진행 바 존재 O => 존재 시 제거
-                if (progressIndex > 0) {
+                if (progressIndex >= 0) {
                     pbItem = resultLists.get(progressIndex);
+                    pbItem.dataType = GettyData.TYPE_PROGRESS;
                     resultLists.remove(progressIndex);
                 }
                 //진행 바 존재 X => 진행 바 생성
@@ -254,7 +264,7 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     pbItem = new GettyData("", GettyData.TYPE_PROGRESS);
                 }
 
-                //진행바 추가
+                //맨 끝 데이터에 새로운 리스트, 진행바 추가
                 resultLists.addAll(resultLists_);
                 resultLists.add(pbItem);
 
@@ -269,24 +279,37 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             //로딩 실패
             @Override
             public void error(String e) {
-                ToastUtils.showToast(mActivity, e);
+                if (!NetworkManager.isConnect(mActivity)) {
+                    ToastUtils.showToast(mActivity, mActivity.getResources().getString(R.string.weak_network));
+                } else {
+                    ToastUtils.showToastS(mActivity, e);
+                }
+                isLoading = false;
+                pageIndex--;
                 int progressIndex = resultLists.size() - 1;
+
+                //새로고침 로딩 실패: UI만 원래대로 변경
+                if (holder_ instanceof GettyViewRefreshHolder) {
+                    ((GettyViewRefreshHolder) holder_).tv_refresh.setVisibility(View.VISIBLE);
+                    ((GettyViewRefreshHolder) holder_).pb.setVisibility(View.GONE);
+                    return;
+                }
+
                 GettyData gettyData;
-
-
+                //진행바 존재 O => 새로고침 이미지로 교체
                 if (progressIndex >= 0) {
                     gettyData = resultLists.get(progressIndex);
-//                    gettyData.dataType = GettyData.TYPE_REFRESH;
-                } else {
-//                    gettyData = new GettyData("", GettyData.TYPE_REFRESH);
+                    gettyData.dataType = GettyData.TYPE_REFRESH;
+                }
+                //진행바 존재 X => 새로고침 이미지 추가
+                else {
+                    gettyData = new GettyData("", GettyData.TYPE_REFRESH);
                     progressIndex = 0;
-//                    resultLists.add(gettyData);
+                    resultLists.add(gettyData);
                 }
 
                 notifyItemChanged(progressIndex);
 
-                isLoading = false;
-                pageIndex--;
                 if (endLoad != null) {
                     endLoad.end();
                 }

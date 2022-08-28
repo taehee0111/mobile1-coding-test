@@ -11,13 +11,11 @@ import com.rsupport.mobile1.test.R;
 
 public class GettyViewProgressBarHolder extends RecyclerView.ViewHolder {
     public final View parent;
-    public final TextView tv;
     public final ProgressBar pb;
 
     public GettyViewProgressBarHolder(@NonNull View itemView, int viewType) {
         super(itemView);
         parent= itemView.findViewById(R.id.parent);
-        tv= itemView.findViewById(R.id.tv);
         pb= itemView.findViewById(R.id.pb);
     }
 }

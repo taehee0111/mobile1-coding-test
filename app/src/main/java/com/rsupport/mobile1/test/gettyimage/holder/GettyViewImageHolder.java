@@ -11,12 +11,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.rsupport.mobile1.test.R;
 
-public class GettyViewHolder extends RecyclerView.ViewHolder {
+public class GettyViewImageHolder extends RecyclerView.ViewHolder {
     public final ViewGroup parent;
     public final ImageView iv;
     public ProgressBar pb;
 
-    public GettyViewHolder(@NonNull View itemView, int viewType) {
+    public GettyViewImageHolder(@NonNull View itemView, int viewType) {
         super(itemView);
         parent = itemView.findViewById(R.id.parent);
         iv = itemView.findViewById(R.id.iv);
