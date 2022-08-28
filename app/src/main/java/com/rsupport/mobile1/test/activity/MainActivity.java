@@ -31,9 +31,9 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     public RecyclerView rv;
-    private String TAG = MainActivity.class.getSimpleName();
-    private static String RECYCLER_VIEW_POSITION = "RECYCLER_VIEW_POSITION";
-    private static String RECYCLER_VIEW_LIST = "RECYCLER_VIEW_POSITION";
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String RECYCLER_VIEW_POSITION = "RECYCLER_VIEW_POSITION";
+    private static final String RECYCLER_VIEW_LIST = "RECYCLER_VIEW_POSITION";
 
     private MainActivity mActivity;
     private GetGettyAdapter adapter;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         //parcelable 예외처리
         if (savedInstanceState == null) {
             //초기 페이지 로딩 호출
-            adapter.loadPage(null, new GetGettyAdapter.EndLoad() {
+            adapter.loadPage(null, new GetGettyAdapter.EndLoadPageCallback() {
                 @Override
                 public void end() {
                     pb.setVisibility(View.GONE);
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }//end onCreate
 
-
+    //화면 회전시 데이터 유지
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //화면 회전시 데이터 유지
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);

@@ -35,9 +35,6 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private String TAG = GetGettyAdapter.class.getSimpleName();
     private final MainActivity mActivity;
     public static final String PAYLOAD_IMAGE = "PAYLOAD_IMAGE";
-    private int LOAD_REFRESH = 1;
-    private int LOAD_PAGE = 2;
-
 
     public final CustomGridLayoutManager gridLayoutManager;
 
@@ -73,15 +70,6 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         });
     }
 
-    @Override
-    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder_) {
-        super.onViewDetachedFromWindow(holder_);
-        if (holder_ instanceof GettyViewImageHolder) {
-            ImageView imageView = ((GettyViewImageHolder) holder_).iv;
-            Glide.with(mActivity).clear(imageView);
-        }
-    }
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -89,7 +77,6 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (viewType == GettyData.TYPE_URL) {
             View view = LayoutInflater.from(mActivity).inflate(R.layout.getty_holder_item, parent, false);
             return new GettyViewImageHolder(view, viewType);
-
         }
         // 진행 바
         else if (viewType == GettyData.TYPE_PROGRESS) {
@@ -137,9 +124,6 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 @Override
                 public void onClick(View view) {
                     if (mActivity.isFinishing()) return;
-                    //네트워크 연결 X
-                    NetworkManager.getNetworkStatus(mActivity);
-
                     loadPage(holder, null); // 새로고침
                 }
             });
@@ -152,7 +136,39 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.parent.getLayoutParams().height = itemH;
             loadPage(holder, null); // 진행바
         }
+    }
 
+    //메모리 해제
+    @Override
+    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder_) {
+        super.onViewDetachedFromWindow(holder_);
+        if (holder_ instanceof GettyViewImageHolder) {
+            ImageView imageView = ((GettyViewImageHolder) holder_).iv;
+            Glide.with(mActivity).clear(imageView);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        if (mActivity.isFinishing()) {
+            return 0;
+        } else {
+            if (resultLists != null) {
+                return resultLists.size();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (!mActivity.isFinishing()) {
+            if (resultLists != null && resultLists.size() > 0) {
+                GettyData item = resultLists.get(position);
+                return item.dataType;
+            }
+        }
+        return GettyData.TYPE_NONE;
     }
 
     private void payloadImage(RecyclerView.ViewHolder holder_, int position) {
@@ -205,36 +221,11 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    @Override
-    public int getItemCount() {
-        if (mActivity.isFinishing()) {
-            return 0;
-        } else {
-            if (resultLists != null) {
-                return resultLists.size();
-            }
-        }
-        return 0;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        if (!mActivity.isFinishing()) {
-            if (resultLists != null && resultLists.size() > 0) {
-                GettyData item = resultLists.get(position);
-                return item.dataType;
-            }
-        }
-        return GettyData.TYPE_NONE;
-    }
-
-
-    public interface EndLoad {
+    public interface EndLoadPageCallback {
         void end();
     }
 
-
-    public void loadPage(@Nullable RecyclerView.ViewHolder holder_, @Nullable EndLoad endLoad) {
+    public void loadPage(@Nullable RecyclerView.ViewHolder holder_, @Nullable EndLoadPageCallback endLoadPageCallback) {
         if (isLoading) {
             return;
         }
@@ -271,17 +262,20 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 int notifyLength = resultLists.size() - progressIndex;
                 isLoading = false;
                 notifyItemRangeChanged(progressIndex, notifyLength, PAYLOAD_IMAGE);
-                if (endLoad != null) {
-                    endLoad.end();
+                if (endLoadPageCallback != null) {
+                    endLoadPageCallback.end();
                 }
             }
 
             //로딩 실패
             @Override
             public void error(String e) {
+                //인터넷 연결 안되어있을시
                 if (!NetworkManager.isConnect(mActivity)) {
                     ToastUtils.showToast(mActivity, mActivity.getResources().getString(R.string.weak_network));
-                } else {
+                }
+                //통신 에러
+                else {
                     ToastUtils.showToastS(mActivity, e);
                 }
                 isLoading = false;
@@ -310,8 +304,8 @@ public class GetGettyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 notifyItemChanged(progressIndex);
 
-                if (endLoad != null) {
-                    endLoad.end();
+                if (endLoadPageCallback != null) {
+                    endLoadPageCallback.end();
                 }
             }
         });
