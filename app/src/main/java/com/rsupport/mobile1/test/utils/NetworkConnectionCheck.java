@@ -16,10 +16,10 @@ import com.rsupport.mobile1.test.utils.manager.NetworkManager;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class NetworkConnectionCheck extends ConnectivityManager.NetworkCallback {
-    private Context context;
+    private final Context context;
     @Nullable
-    private NetworkRequest networkRequest;
-    private ConnectivityManager connectivityManager;
+    private final NetworkRequest networkRequest;
+    private final ConnectivityManager connectivityManager;
 
     public NetworkConnectionCheck(Context context) {
         this.context = context;

@@ -101,9 +101,9 @@ public class MainActivity extends AppCompatActivity {
 
     //jellyBean 구글 플레이에서 지원 중단(API 16)
     private void checkGooglePlayServices() {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-            ToastUtils.showToast(mActivity,getResources().getString(R.string.jellybean_not_able));
-        }
+//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+//            ToastUtils.showToast(mActivity,getResources().getString(R.string.jellybean_not_able));
+//        }
         switch (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)) {
             case ConnectionResult.SERVICE_MISSING:
                 Objects.requireNonNull(GoogleApiAvailability.getInstance().getErrorDialog(this, ConnectionResult.SERVICE_MISSING, 0)).show();

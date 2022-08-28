@@ -15,7 +15,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.ArrayList;
 
 public class GetGettyImageManager {
@@ -83,9 +88,7 @@ public class GetGettyImageManager {
             return null;
         }
         try {
-            //get 방식
             Document doc = Jsoup.connect(url).get();
-//            Elements mosaicAsset_module__figure___qJh1Q = doc.getElementsByClass("MosaicAsset-module__figure___qJh1Q");
             Elements mosaicAsset_module__figure___qJh1Q = doc.select(".MosaicAsset-module__figure___qJh1Q");
             for (int i = 0; i < mosaicAsset_module__figure___qJh1Q.size(); i++) {
                 Element element = mosaicAsset_module__figure___qJh1Q.get(i);
@@ -98,13 +101,11 @@ public class GetGettyImageManager {
                 //origin
                 Elements sourceElements = pictureElement.getElementsByTag("source");
                 //thumb
-//                Elements img = pictureElement.getElementsByTag("img");
                 if (sourceElements == null || sourceElements.size() <= 0) {
                     continue;
                 }
                 Element source = sourceElements.get(0);
                 Elements srcSet = source.getElementsByAttribute("srcset");
-                //Elements getElementsByClass = source.getElementsByClass("MosaicAsset-module__thumb___yvFP5");
                 if (srcSet == null || srcSet.size() <= 0) {
                     continue;
                 }
@@ -112,7 +113,6 @@ public class GetGettyImageManager {
                 String srcSetText = srcSet.attr("srcset");
                 GettyData gettyData = new GettyData(srcSetText, GettyData.TYPE_URL);
                 gettyDataLists.add(gettyData);
-//                Log.d(TAG, "");
             }
         } catch (IOException e) {
             throw e;
