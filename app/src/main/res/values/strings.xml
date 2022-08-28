@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Mobile1TestApp</string>
     <string name="weak_network">네트워크 연결을 해주세요.</string>
-    <string name="network_connected">네트워크 연결 되었습니다..</string>
+    <string name="network_connected">네트워크 연결 되었습니다.</string>
     <string name="network_discoonected">네트워크 끊겼습니다.</string>
+    <string name="refresh">새로고침</string>
+    <string name="getty_no_item">\"상품 정보를 받아오지 못했습니다.\"</string>
 </resources>

@@ -46,7 +46,7 @@ public class NetworkConnectionCheck extends ConnectivityManager.NetworkCallback 
         // 네트워크가 연결되었을 때 할 동작
 
         if (NetworkManager.isConnect) {
-            ToastUtils.showToast(context, context.getString(R.string.network_connected));
+//            ToastUtils.showToast(context, context.getString(R.string.network_connected));
         }
     }
 
@@ -58,7 +58,7 @@ public class NetworkConnectionCheck extends ConnectivityManager.NetworkCallback 
         // 네트워크 연결이 끊겼을 때 할 동작
 
         if (!NetworkManager.isConnect) {
-            ToastUtils.showToast(context, context.getString(R.string.network_discoonected));
+//            ToastUtils.showToast(context, context.getString(R.string.network_discoonected));
         }
     }
 

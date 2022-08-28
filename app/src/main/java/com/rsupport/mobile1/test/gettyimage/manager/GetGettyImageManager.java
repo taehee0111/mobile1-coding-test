@@ -1,12 +1,13 @@
 package com.rsupport.mobile1.test.gettyimage.manager;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.rsupport.mobile1.test.gettyimage.model.PassingData;
+import com.rsupport.mobile1.test.R;
+import com.rsupport.mobile1.test.gettyimage.model.GettyData;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,34 +21,37 @@ public class GetGettyImageManager {
 
     private String TAG = GetGettyImageManager.class.getSimpleName();
     @Nullable
-    private ArrayList<PassingData> resultLists;
+    private ArrayList<GettyData> resultLists;
 
     private GetGettyImageCallback getGettyImageCallback;
     private int position;
+    private Activity mActivity;
 
-    public void getGettyImage(int position, GetGettyImageCallback getGettyImageCallback) {
+    public void getGettyImage(Activity mActivity, int position, GetGettyImageCallback getGettyImageCallback) {
+        this.mActivity = mActivity;
+
         this.getGettyImageCallback = getGettyImageCallback;
         this.position = position;
-
+        if (position < 1) {
+            return;
+        }
         new GetGettyImageAsync().execute();
     }
 
     public interface GetGettyImageCallback {
-        void end(ArrayList<PassingData> resultLists);
+        void end(ArrayList<GettyData> resultLists);
 
         void error(String errorMsg);
     }
 
     class GetGettyImageAsync extends AsyncTask<Void, Void, Void> {
-
-
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                resultLists = getGettyImage(position);
-                Log.d(TAG, "");
+                resultLists = getGettyImage_Page(position);
+//                Log.d(TAG, "");
             } catch (Exception e) {
-                Log.e(TAG, "e");
+//                Log.e(TAG, "e");
                 //todo FirebaseCrashlytics 예외처리 추가 필요
             }
             return null;
@@ -59,20 +63,21 @@ public class GetGettyImageManager {
                 if (resultLists != null && resultLists.size() > 0) {
                     getGettyImageCallback.end(resultLists);
                 } else {
-                    getGettyImageCallback.error("상품 정보를 받아오지 못했습니다.");
+                    getGettyImageCallback.error(mActivity.getResources().getString(R.string.getty_no_item));
                 }
             }
+
+
             super.onPostExecute(result);
         }
     }
 
     //position: 페이지 위치
     //return: 이미지 리스트
-    private ArrayList<PassingData> getGettyImage(int position) throws IOException {
-        ArrayList<PassingData> passingDataLists = new ArrayList<>();
+    private ArrayList<GettyData> getGettyImage_Page(int position) throws IOException {
+        ArrayList<GettyData> gettyDataLists = new ArrayList<>();
 
         String url = "https://www.gettyimages.com/photos/collaboration?assettype=image&sort=mostpopular&phrase=collaboration&license=rf%2Crm&page=" + position;
-//        String url = "";
 
         if (TextUtils.isEmpty(url)) {
             return null;
@@ -105,13 +110,13 @@ public class GetGettyImageManager {
                 }
 
                 String srcSetText = srcSet.attr("srcset");
-                PassingData passingData = new PassingData(srcSetText, PassingData.TYPE_URL);
-                passingDataLists.add(passingData);
-                Log.d(TAG, "");
+                GettyData gettyData = new GettyData(srcSetText, GettyData.TYPE_URL);
+                gettyDataLists.add(gettyData);
+//                Log.d(TAG, "");
             }
         } catch (IOException e) {
             throw e;
         }
-        return passingDataLists;
+        return gettyDataLists;
     }
 }
